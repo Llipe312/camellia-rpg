@@ -25,13 +25,8 @@
       align-items: center;
       border-bottom: 5px solid var(--roxo);
     }
-    .logo {
-      font-size: 36px;
-      font-weight: bold;
-      background: linear-gradient(90deg, var(--roxo), var(--rosa));
-      -webkit-background-clip: text;
-      color: transparent;
-    }
+    .logo { font-size: 36px; font-weight: bold; background: linear-gradient(90deg, var(--roxo), var(--rosa)); -webkit-background-clip: text; color: transparent; }
+
     .container {
       max-width: 1500px;
       margin: 30px auto;
@@ -66,16 +61,13 @@
       padding: 20px;
       border-radius: 16px;
     }
-    .value {
-      font-size: 38px;
-      font-weight: bold;
-    }
+    .value { font-size: 38px; font-weight: bold; }
     #pv { color: #ff3366; }
     #pea { color: #bb44ff; }
     #pe { color: #ffaa33; }
+
     .circle {
-      width: 400px;
-      height: 400px;
+      width: 400px; height: 400px;
       border: 16px solid var(--roxo);
       border-radius: 50%;
       position: relative;
@@ -89,12 +81,9 @@
       text-align: center;
       width: 110px;
       cursor: pointer;
-      transition: all 0.2s;
     }
-    .attr:hover {
-      transform: scale(1.12);
-      text-shadow: 0 0 15px var(--rosa);
-    }
+    .attr:hover { transform: scale(1.12); text-shadow: 0 0 15px var(--rosa); }
+
     .tab-buttons {
       display: flex;
       background: #111;
@@ -131,6 +120,15 @@
       width: 100%;
       margin-bottom: 12px;
     }
+    button {
+      padding: 10px 16px;
+      background: var(--roxo);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
   </style>
 </head>
 <body>
@@ -141,7 +139,9 @@
 
   <div class="container">
     <div class="sidebar">
-      <img id="avatar" src="https://via.placeholder.com/320x320/1A0033/FFFFFF?text=Feiticeiro" alt="Avatar">
+      <img id="avatar" src="https://via.placeholder.com/320x320/1A0033/FFFFFF?text=Portrait" alt="Portrait" onclick="document.getElementById('avatar-upload').click()">
+      <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="carregarImagem(event)">
+      
       <input type="text" id="nome" placeholder="Nome do Feiticeiro">
 
       <label>Espécie</label>
@@ -188,6 +188,12 @@
       </div>
 
       <div id="tab-content" class="tab-content"></div>
+
+      <div style="text-align:center; margin-top:20px;">
+        <button onclick="salvarFicha()">💾 Salvar Ficha</button>
+        <button onclick="exportarFicha()">📤 Exportar como JSON</button>
+        <button onclick="carregarFicha()">📥 Carregar Ficha</button>
+      </div>
     </div>
   </div>
 
@@ -236,16 +242,70 @@
     }
 
     function toggleCustomCla() {
-      document.getElementById('custom-cla').style.display = 
-        document.getElementById('cla').value === 'custom' ? 'block' : 'none';
+      document.getElementById('custom-cla').style.display = document.getElementById('cla').value === 'custom' ? 'block' : 'none';
     }
 
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
-      if (n === 0) content.innerHTML = `<h2>Atributos</h2><p>Clique nos atributos no círculo acima para distribuir seus 5 pontos.</p>`;
-      else if (n === 1) content.innerHTML = `<h2>Repertório</h2><textarea style="height:200px;width:100%;" placeholder="Suas informações narrativas..."></textarea>`;
-      else if (n === 2) content.innerHTML = `<h2>Técnica Inata</h2><input type="text" placeholder="Conceito da Técnica"><textarea style="height:180px;width:100%;" placeholder="Descrição completa..."></textarea>`;
-      else content.innerHTML = `<h2>Maestria</h2><p>Distribua seus Pontos de Maestria aqui.</p>`;
+      if (n === 0) content.innerHTML = `<h2>Atributos</h2><p>Clique nos atributos no círculo para distribuir seus 5 pontos.</p>`;
+      else if (n === 1) content.innerHTML = `<h2>Repertório</h2><textarea style="height:220px;width:100%;" placeholder="Suas 10 informações narrativas..."></textarea>`;
+      else if (n === 2) content.innerHTML = `<h2>Técnica Inata</h2>
+        <input type="text" placeholder="Conceito da Inata">
+        <textarea style="height:180px;width:100%;" placeholder="Descrição da Técnica..."></textarea>`;
+      else content.innerHTML = `<h2>Maestria</h2><p>Distribua Pontos de Maestria (Liberação, Barreiras, etc.)</p>`;
+    }
+
+    function carregarImagem(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function(ev) {
+          document.getElementById('avatar').src = ev.target.result;
+        };
+        reader.readAsDataURL(file);
+      }
+    }
+
+    function salvarFicha() {
+      const ficha = {
+        nome: document.getElementById('nome').value,
+        especie: document.getElementById('especie').value,
+        cla: document.getElementById('cla').value,
+        atributos: atributos,
+        avatar: document.getElementById('avatar').src
+      };
+      localStorage.setItem('camelliaFicha', JSON.stringify(ficha));
+      alert('Ficha salva com sucesso!');
+    }
+
+    function exportarFicha() {
+      const ficha = {
+        nome: document.getElementById('nome').value,
+        especie: document.getElementById('especie').value,
+        cla: document.getElementById('cla').value,
+        atributos: atributos
+      };
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ficha, null, 2));
+      const downloadAnchor = document.createElement('a');
+      downloadAnchor.setAttribute("href", dataStr);
+      downloadAnchor.setAttribute("download", "ficha_camellia.json");
+      document.body.appendChild(downloadAnchor);
+      downloadAnchor.click();
+      downloadAnchor.remove();
+    }
+
+    function carregarFicha() {
+      const saved = localStorage.getItem('camelliaFicha');
+      if (saved) {
+        const ficha = JSON.parse(saved);
+        document.getElementById('nome').value = ficha.nome || '';
+        document.getElementById('especie').value = ficha.especie || 'humano';
+        document.getElementById('cla').value = ficha.cla || 'nenhum';
+        atributos = ficha.atributos || atributos;
+        if (ficha.avatar) document.getElementById('avatar').src = ficha.avatar;
+        calcularTudo();
+        alert('Ficha carregada!');
+      }
     }
 
     window.onload = () => {
