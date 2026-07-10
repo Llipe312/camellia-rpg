@@ -117,18 +117,18 @@
       margin-bottom: 8px;
     }
     button {
-      padding: 10px 16px;
+      padding: 8px 14px;
       background: var(--roxo);
       color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin: 5px;
+      margin: 4px;
     }
     .maestria-circle {
-      width: 280px;
-      height: 280px;
-      border: 12px solid var(--roxo);
+      width: 300px;
+      height: 300px;
+      border: 14px solid var(--roxo);
       border-radius: 50%;
       position: relative;
       margin: 20px auto;
@@ -139,6 +139,13 @@
       text-align: center;
       cursor: pointer;
       font-weight: bold;
+      width: 90px;
+    }
+    .extensiva {
+      border: 1px solid #555;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
     }
   </style>
 </head>
@@ -213,7 +220,8 @@
     let pontosRestantes = 5;
     let statusAtual = { pv:150, pea:140, pe:100 };
     let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
-    let pontosMaestria = 1; // começa com 1
+    let pontosMaestria = 1;
+    let ptRestantes = 1;
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -306,14 +314,16 @@
         content.innerHTML = `<h2>Técnica Inata</h2>
           <input type="text" placeholder="Conceito da Técnica Inata">
           <textarea style="height:100px;" placeholder="Descrição completa..."></textarea>
-          <p>PT restantes: <strong id="pt-restantes">1</strong></p>
+          <p>PT restantes: <strong id="pt-restantes">${ptRestantes}</strong></p>
           <h3>Técnicas Extensivas</h3>
           <div id="extensivas-container"></div>`;
         criarExtensivas();
       } else {
         content.innerHTML = `<h2>Maestria</h2>
           <p>Pontos de Maestria restantes: <strong id="pm-restantes">${pontosMaestria}</strong></p>
-          <div class="maestria-circle" id="maestria-circle"></div>`;
+          <div class="maestria-circle" id="maestria-circle"></div>
+          <h3>Desbloqueados</h3>
+          <div id="maestria-desbloqueados"></div>`;
         desenharMaestria();
       }
     }
@@ -323,14 +333,11 @@
       container.innerHTML = '';
       for (let i = 1; i <= 7; i++) {
         const div = document.createElement('div');
-        div.style.marginBottom = '15px';
-        div.style.border = '1px solid #444';
-        div.style.borderRadius = '8px';
-        div.style.padding = '10px';
+        div.className = 'extensiva';
         div.innerHTML = `
-          <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="this.parentElement.querySelector('.ext-details').style.display = this.parentElement.querySelector('.ext-details').style.display === 'none' ? 'block' : 'none'">
+          <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="toggleExtensiva(this)">
             <strong>Técnica Extensiva ${i}</strong>
-            <span>▼</span>
+            <button onclick="event.stopImmediatePropagation(); criarExtensiva(${i});">Criar (1 PT)</button>
           </div>
           <div class="ext-details" style="display:none; margin-top:10px;">
             <input type="text" placeholder="Nome da Extensiva">
@@ -345,6 +352,18 @@
       }
     }
 
+    function toggleExtensiva(el) {
+      const details = el.parentElement.querySelector('.ext-details');
+      details.style.display = details.style.display === 'none' ? 'block' : 'none';
+    }
+
+    function criarExtensiva(i) {
+      if (ptRestantes <= 0) return alert("PT insuficientes!");
+      ptRestantes--;
+      document.getElementById('pt-restantes').textContent = ptRestantes;
+      alert(`Técnica Extensiva ${i} criada! (1 PT gasto)`);
+    }
+
     function desenharMaestria() {
       const circle = document.getElementById('maestria-circle');
       circle.innerHTML = `
@@ -352,6 +371,12 @@
         <div class="maestria-item" style="top:50%;left:12%;transform:translate(-50%,-50%)" onclick="editarMaestria('antidominio')">Anti-Domínio<br><span style="font-size:24px">${maestria.antidominio}</span></div>
         <div class="maestria-item" style="top:50%;right:12%;transform:translate(50%,-50%)" onclick="editarMaestria('barreiras')">Barreiras<br><span style="font-size:24px">${maestria.barreiras}</span></div>
         <div class="maestria-item" style="bottom:15%;left:50%;transform:translate(-50%,50%)" onclick="editarMaestria('shikigamis')">Shikigamis<br><span style="font-size:24px">${maestria.shikigamis}</span></div>
+      `;
+
+      const desbloqueados = document.getElementById('maestria-desbloqueados');
+      desbloqueados.innerHTML = `
+        <p><strong>Liberação de Energia:</strong> Manipulação básica de energia amaldiçoada</p>
+        <p><strong>Técnicas de Barreira:</strong> Desbloqueia Barreiras Simples</p>
       `;
     }
 
