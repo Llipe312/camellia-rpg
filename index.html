@@ -2,19 +2,16 @@
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Camellia RPG - Fichas</title>
   <link rel="stylesheet" href="styles.css" />
-  <style>
-    .glitch-text { font-family: 'Creepster', system-ui; color: #00ccff; text-shadow: 0 0 10px #00ccff; }
-  </style>
 </head>
 <body>
   <header>
-    <h1 class="glitch-text">CAMELLIA RPG</h1>
+    <h1>CAMELLIA RPG</h1>
     <div class="header-actions">
       <input id="search" placeholder="Buscar feiticeiro..." />
-      <button id="newBtn">Nova Ficha</button>
+      <button id="newBtn">+ Nova Ficha</button>
       <button id="exportAllBtn">Exportar Todas</button>
       <input type="file" id="importFile" accept=".json" style="display:none" />
       <button id="importBtn">Importar</button>
@@ -27,33 +24,43 @@
     </aside>
 
     <section class="sheet" id="sheet">
-      <!-- Topo -->
-      <div class="top-row">
-        <div class="info">
-	<div class="portrait-container">
-  	  <img id="portraitImg" src="" alt="Portrait do Personagem" 
-         onerror="this.src='https://via.placeholder.com/220x280/111/00ccff?text=Sem+Portrait'" />
-    <input type="text" id="portraitUrl" placeholder="Cole a URL da imagem aqui" />
-    <button id="loadPortraitBtn">Carregar Portrait</button>
-  </div>
-          <input id="name" placeholder="Nome do Feiticeiro" />
-          <div class="meta">
-            <input id="age" placeholder="Idade" />
-            <input id="species" placeholder="Espécie (Humano/Mestiço...)" />
-            <input id="grade" placeholder="Grau (4 a Especial)" />
-          </div>
-          <textarea id="bio" placeholder="Conceito / História"></textarea>
+      <div class="info">
+        <div class="portrait-container">
+          <img id="portraitImg" src="" alt="Portrait" onerror="this.src='https://via.placeholder.com/200x260/1a1a1f/4a9eff?text=Portrait'" />
+          <input type="text" id="portraitUrl" placeholder="Cole a URL da imagem" />
+          <button id="loadPortraitBtn">Carregar Imagem</button>
         </div>
 
-        <div class="bars">
-          <label>PV <span id="pvVal"></span></label>
-          <input id="pvMax" type="number" /> <input id="pvNow" type="number" />
+        <input id="name" placeholder="Nome do Feiticeiro" class="name-input" />
 
-          <label>PEA <span id="peaVal"></span></label>
-          <input id="peaMax" type="number" /> <input id="peaNow" type="number" />
+        <div class="meta">
+          <input id="age" placeholder="Idade" />
+          <input id="species" placeholder="Espécie" />
+          <input id="grade" placeholder="Grau" />
+        </div>
 
-          <label>PE <span id="peVal"></span></label>
-          <input id="peMax" type="number" /> <input id="peNow" type="number" />
+        <textarea id="bio" placeholder="Conceito / História / Background"></textarea>
+      </div>
+
+      <!-- Status -->
+      <div class="box">
+        <h3>Status</h3>
+        <div class="status-grid">
+          <div>
+            <label>PV</label>
+            <input id="pvMax" type="number" readonly class="max-input" />
+            <input id="pvNow" type="number" class="current-input" />
+          </div>
+          <div>
+            <label>PEA</label>
+            <input id="peaMax" type="number" readonly class="max-input" />
+            <input id="peaNow" type="number" class="current-input" />
+          </div>
+          <div>
+            <label>PE</label>
+            <input id="peMax" type="number" readonly class="max-input" />
+            <input id="peNow" type="number" class="current-input" />
+          </div>
         </div>
       </div>
 
@@ -63,32 +70,26 @@
         <div class="attrs" id="attributes"></div>
       </div>
 
-      <!-- Maestria -->
+      <!-- EAR -->
       <div class="box">
-        <h3>Maestria (PMs)</h3>
-        <div id="mastery"></div>
+        <label style="font-size: 1.1em;">
+          <input type="checkbox" id="earCheckbox"> Possui Energia Amaldiçoada Reversa (EAR)
+        </label>
       </div>
 
-      <!-- Técnica Inata -->
-      <div class="box">
-        <h3>Técnica Inata</h3>
-        <textarea id="innateTech" placeholder="Conceito base + extensões..."></textarea>
-      </div>
-
-      <!-- Outros campos -->
-      <div class="bottom-row">
-        <div class="box">
-          <h3>Repertório</h3>
-          <textarea id="repertoire" placeholder="Frases do repertório..."></textarea>
+      <!-- Rolagem -->
+      <div class="box dice-roller">
+        <h3>Rolagem Rápida (2d10)</h3>
+        <div class="roll-area">
+          <input id="rollMod" type="number" value="0" placeholder="Modificador" />
+          <button id="rollBtn">Rolar 2d10 + Mod</button>
         </div>
-        <div class="box">
-          <h3>Equipamentos / Ferramentas</h3>
-          <textarea id="equipment" placeholder="Armas, objetos amaldiçoados..."></textarea>
-        </div>
+        <div id="rollResult" class="roll-result"></div>
+        <small id="rollDetail"></small>
       </div>
 
       <div class="sheet-actions">
-        <button id="saveBtn">Salvar</button>
+        <button id="saveBtn">💾 Salvar Ficha</button>
         <button id="duplicateBtn">Duplicar</button>
         <button id="deleteBtn">Excluir</button>
         <button id="exportBtn">Exportar JSON</button>
@@ -97,7 +98,7 @@
   </main>
 
   <footer>
-    <small>Camellia RPG 2ª Edição • Fichas Digitais (localStorage + JSON)</small>
+    <small>Camellia RPG 2ª Edição • Fichas Digitais</small>
   </footer>
 
   <script src="app.js"></script>
