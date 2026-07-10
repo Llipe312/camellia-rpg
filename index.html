@@ -105,7 +105,7 @@
       background: var(--card);
       padding: 30px;
       border-radius: 16px;
-      min-height: 500px;
+      min-height: 520px;
     }
     input, select, textarea {
       background: #111;
@@ -124,6 +124,21 @@
       border-radius: 8px;
       cursor: pointer;
       margin: 5px;
+    }
+    .maestria-circle {
+      width: 280px;
+      height: 280px;
+      border: 12px solid var(--roxo);
+      border-radius: 50%;
+      position: relative;
+      margin: 20px auto;
+      background: radial-gradient(circle, #1A1A2E, #0A0A14);
+    }
+    .maestria-item {
+      position: absolute;
+      text-align: center;
+      cursor: pointer;
+      font-weight: bold;
     }
   </style>
 </head>
@@ -198,7 +213,7 @@
     let pontosRestantes = 5;
     let statusAtual = { pv:150, pea:140, pe:100 };
     let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
-    let pontosMaestria = 0; // vai aumentando com nível
+    let pontosMaestria = 1; // começa com 1
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -284,40 +299,76 @@
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
       if (n === 0) {
-        content.innerHTML = `<h2>Inventário</h2><textarea style="height:220px;width:100%;" placeholder="Itens, ferramentas amaldiçoadas..."></textarea>`;
+        content.innerHTML = `<h2>Inventário</h2><textarea style="height:220px;width:100%;" placeholder="Itens e equipamentos..."></textarea>`;
       } else if (n === 1) {
         content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Suas informações narrativas..."></textarea>`;
       } else if (n === 2) {
         content.innerHTML = `<h2>Técnica Inata</h2>
           <input type="text" placeholder="Conceito da Técnica Inata">
           <textarea style="height:100px;" placeholder="Descrição completa..."></textarea>
-          <h3>Técnicas Extensivas (7 no total)</h3>
-          <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-            <div><input type="text" placeholder="Nome Ext. 1"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-            <div><input type="text" placeholder="Nome Ext. 2"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-            <div><input type="text" placeholder="Nome Ext. 3"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-            <div><input type="text" placeholder="Nome Ext. 4"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-            <div><input type="text" placeholder="Nome Ext. 5"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-            <div><input type="text" placeholder="Nome Ext. 6"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-            <div><input type="text" placeholder="Nome Ext. 7"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
-          </div>`;
+          <p>PT restantes: <strong id="pt-restantes">1</strong></p>
+          <h3>Técnicas Extensivas</h3>
+          <div id="extensivas-container"></div>`;
+        criarExtensivas();
       } else {
         content.innerHTML = `<h2>Maestria</h2>
-          <p>Pontos de Maestria restantes: <strong id="pm-restantes">1</strong></p>
-          <div style="display:flex; gap:30px; margin-top:20px;">
-            <div style="text-align:center;">
-              <div style="width:120px;height:120px;border:8px solid var(--roxo);border-radius:50%;position:relative;margin:auto;">
-                <div style="position:absolute;top:20%;left:50%;transform:translate(-50%,-50%)">Lib. Energia<br><strong>1</strong></div>
-                <div style="position:absolute;top:50%;left:10%;">Anti-Dom.<br><strong>0</strong></div>
-                <div style="position:absolute;top:50%;right:10%;">Barreiras<br><strong>0</strong></div>
-                <div style="position:absolute;bottom:20%;left:50%;transform:translate(-50%,50%)">Shikigamis<br><strong>0</strong></div>
-              </div>
-            </div>
-            <div>
-              <p>Clique nas categorias para distribuir pontos.</p>
-            </div>
-          </div>`;
+          <p>Pontos de Maestria restantes: <strong id="pm-restantes">${pontosMaestria}</strong></p>
+          <div class="maestria-circle" id="maestria-circle"></div>`;
+        desenharMaestria();
       }
+    }
+
+    function criarExtensivas() {
+      const container = document.getElementById('extensivas-container');
+      container.innerHTML = '';
+      for (let i = 1; i <= 7; i++) {
+        const div = document.createElement('div');
+        div.style.marginBottom = '15px';
+        div.style.border = '1px solid #444';
+        div.style.borderRadius = '8px';
+        div.style.padding = '10px';
+        div.innerHTML = `
+          <div style="display:flex; justify-content:space-between; align-items:center; cursor:pointer;" onclick="this.parentElement.querySelector('.ext-details').style.display = this.parentElement.querySelector('.ext-details').style.display === 'none' ? 'block' : 'none'">
+            <strong>Técnica Extensiva ${i}</strong>
+            <span>▼</span>
+          </div>
+          <div class="ext-details" style="display:none; margin-top:10px;">
+            <input type="text" placeholder="Nome da Extensiva">
+            <textarea placeholder="Descrição completa..."></textarea>
+            <input type="text" placeholder="Custo (ex: 4 PEA e 2 PE)">
+            <input type="text" placeholder="Dano (ex: 3d8)">
+            <input type="text" placeholder="Alcance (ex: 20m)">
+            <input type="text" placeholder="Duração / Recarga">
+          </div>
+        `;
+        container.appendChild(div);
+      }
+    }
+
+    function desenharMaestria() {
+      const circle = document.getElementById('maestria-circle');
+      circle.innerHTML = `
+        <div class="maestria-item" style="top:15%;left:50%;transform:translate(-50%,-50%)" onclick="editarMaestria('liberacao')">Liberação<br><span style="font-size:24px">${maestria.liberacao}</span></div>
+        <div class="maestria-item" style="top:50%;left:12%;transform:translate(-50%,-50%)" onclick="editarMaestria('antidominio')">Anti-Domínio<br><span style="font-size:24px">${maestria.antidominio}</span></div>
+        <div class="maestria-item" style="top:50%;right:12%;transform:translate(50%,-50%)" onclick="editarMaestria('barreiras')">Barreiras<br><span style="font-size:24px">${maestria.barreiras}</span></div>
+        <div class="maestria-item" style="bottom:15%;left:50%;transform:translate(-50%,50%)" onclick="editarMaestria('shikigamis')">Shikigamis<br><span style="font-size:24px">${maestria.shikigamis}</span></div>
+      `;
+    }
+
+    function editarMaestria(tipo) {
+      const atual = maestria[tipo];
+      const novoStr = prompt(`Pontos em ${tipo} (máximo 5):`, atual);
+      if (novoStr === null) return;
+      let novo = parseInt(novoStr);
+      if (isNaN(novo) || novo < 0 || novo > 5) return alert("Valor inválido!");
+
+      const diff = novo - atual;
+      if (diff > 0 && pontosMaestria < diff) return alert("Pontos de Maestria insuficientes!");
+
+      maestria[tipo] = novo;
+      pontosMaestria -= diff;
+      document.getElementById('pm-restantes').textContent = pontosMaestria;
+      desenharMaestria();
     }
 
     function carregarImagem(e) {
