@@ -51,17 +51,21 @@ function calculateMaxStats(attributes) {
 
 function renderAttributes(c) {
   const container = qs('attributes');
-  if (!container) return;
+  if (!container) {
+    console.error("ERRO: #attributes não encontrado no HTML!");
+    return;
+  }
 
   container.innerHTML = '';
 
   Object.keys(c.attributes).forEach(key => {
     const div = document.createElement('div');
-    div.style = "display:flex; align-items:center; gap:12px; margin:8px 0;";
+    div.style = "display: flex; align-items: center; gap: 15px; margin: 10px 0; padding: 8px; background: #1f1f24; border-radius: 6px;";
     div.innerHTML = `
-      <label style="width:140px">${key}:</label>
-      <input type="number" value="${c.attributes[key]}" min="1" max="5" style="width:70px">
+      <label style="width: 140px; font-weight: bold;">${key}</label>
+      <input type="number" value="${c.attributes[key]}" min="1" max="5" style="width: 80px; padding: 8px; font-size: 1.1em;">
     `;
+
     const input = div.querySelector('input');
     input.onchange = () => {
       c.attributes[key] = parseInt(input.value) || 1;
@@ -160,8 +164,4 @@ document.addEventListener('DOMContentLoaded', () => {
       saveStorage();
     }
   };
-
-  document.querySelectorAll('input, textarea').forEach(el => {
-    if (el.id !== 'search') el.addEventListener('change', writeBack);
-  });
 });
