@@ -46,12 +46,10 @@
       border-radius: 14px;
       border: 4px solid var(--rosa);
       margin-bottom: 20px;
+      cursor: pointer;
     }
-    .main {
-      display: flex;
-      flex-direction: column;
-      gap: 25px;
-    }
+    .main { display: flex; flex-direction: column; gap: 25px; }
+
     .status-grid {
       display: grid;
       grid-template-columns: repeat(3,1fr);
@@ -61,10 +59,8 @@
       padding: 20px;
       border-radius: 16px;
     }
-    .value { font-size: 38px; font-weight: bold; }
-    #pv { color: #ff3366; }
-    #pea { color: #bb44ff; }
-    #pe { color: #ffaa33; }
+    .status-item strong { display: block; font-size: 1.1em; }
+    .value { font-size: 36px; font-weight: bold; }
 
     .circle {
       width: 400px; height: 400px;
@@ -82,7 +78,7 @@
       width: 110px;
       cursor: pointer;
     }
-    .attr:hover { transform: scale(1.12); text-shadow: 0 0 15px var(--rosa); }
+    .attr:hover { transform: scale(1.1); text-shadow: 0 0 15px var(--rosa); }
 
     .tab-buttons {
       display: flex;
@@ -109,7 +105,7 @@
       background: var(--card);
       padding: 30px;
       border-radius: 16px;
-      min-height: 480px;
+      min-height: 500px;
     }
     input, select, textarea {
       background: #111;
@@ -127,7 +123,12 @@
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      margin-right: 10px;
+      margin: 5px;
+    }
+    .attr-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
   </style>
 </head>
@@ -139,9 +140,9 @@
 
   <div class="container">
     <div class="sidebar">
-      <img id="avatar" src="https://via.placeholder.com/320x320/1A0033/FFFFFF?text=Portrait" alt="Portrait" onclick="document.getElementById('avatar-upload').click()">
+      <img id="avatar" src="https://via.placeholder.com/320x320/1A0033/FFFFFF?text=Portrait" onclick="document.getElementById('avatar-upload').click()">
       <input type="file" id="avatar-upload" accept="image/*" style="display:none" onchange="carregarImagem(event)">
-      
+
       <input type="text" id="nome" placeholder="Nome do Feiticeiro">
 
       <label>Espécie</label>
@@ -169,9 +170,9 @@
 
     <div class="main">
       <div class="status-grid">
-        <div><strong>PV</strong><br><span id="pv" class="value">150</span></div>
-        <div><strong>PEA</strong><br><span id="pea" class="value">140</span></div>
-        <div><strong>PE</strong><br><span id="pe" class="value">100</span></div>
+        <div><strong>PV</strong><br><span id="pv-total" class="value">150</span> / <span id="pv-atual" class="value">150</span></div>
+        <div><strong>PEA</strong><br><span id="pea-total" class="value">140</span> / <span id="pea-atual" class="value">140</span></div>
+        <div><strong>PE</strong><br><span id="pe-total" class="value">100</span> / <span id="pe-atual" class="value">100</span></div>
       </div>
 
       <div class="circle" id="circle"></div>
@@ -181,7 +182,7 @@
       </div>
 
       <div class="tab-buttons">
-        <button onclick="mudarTab(0)" class="tab-btn active">Atributos</button>
+        <button onclick="mudarTab(0)" class="tab-btn active">Inventário</button>
         <button onclick="mudarTab(1)" class="tab-btn">Repertório</button>
         <button onclick="mudarTab(2)" class="tab-btn">Técnica Inata</button>
         <button onclick="mudarTab(3)" class="tab-btn">Maestria</button>
@@ -189,9 +190,9 @@
 
       <div id="tab-content" class="tab-content"></div>
 
-      <div style="text-align:center; margin-top:20px;">
+      <div style="text-align:center;">
         <button onclick="salvarFicha()">💾 Salvar Ficha</button>
-        <button onclick="exportarFicha()">📤 Exportar como JSON</button>
+        <button onclick="exportarFicha()">📤 Exportar JSON</button>
         <button onclick="carregarFicha()">📥 Carregar Ficha</button>
       </div>
     </div>
@@ -215,9 +216,12 @@
       const pea = base.peaBase + (atributos.jujutsu * base.peaMult);
       const pe = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
 
-      document.getElementById('pv').textContent = pv;
-      document.getElementById('pea').textContent = pea;
-      document.getElementById('pe').textContent = pe;
+      document.getElementById('pv-total').textContent = pv;
+      document.getElementById('pv-atual').textContent = pv;
+      document.getElementById('pea-total').textContent = pea;
+      document.getElementById('pea-atual').textContent = pea;
+      document.getElementById('pe-total').textContent = pe;
+      document.getElementById('pe-atual').textContent = pe;
       document.getElementById('pontos-restantes').textContent = pontosRestantes;
       desenharCirculo();
     }
@@ -225,19 +229,22 @@
     function desenharCirculo() {
       const circle = document.getElementById('circle');
       circle.innerHTML = `
-        <div class="attr" style="top:12%;left:50%;transform:translate(-50%,-50%)" onclick="aumentarAtributo('jujutsu')">Jujutsu<br><span style="font-size:28px">${atributos.jujutsu}</span></div>
-        <div class="attr" style="top:50%;left:10%;transform:translate(-50%,-50%)" onclick="aumentarAtributo('fisico')">Físico<br><span style="font-size:28px">${atributos.fisico}</span></div>
-        <div class="attr" style="top:50%;right:10%;transform:translate(50%,-50%)" onclick="aumentarAtributo('agilidade')">Agilidade<br><span style="font-size:28px">${atributos.agilidade}</span></div>
-        <div class="attr" style="bottom:12%;left:50%;transform:translate(-50%,50%)" onclick="aumentarAtributo('intelecto')">Intelecto<br><span style="font-size:28px">${atributos.intelecto}</span></div>
-        <div class="attr" style="top:50%;left:50%;transform:translate(-50%,-50%)" onclick="aumentarAtributo('carisma')">Carisma<br><span style="font-size:28px">${atributos.carisma}</span></div>
+        <div class="attr" style="top:12%;left:50%;transform:translate(-50%,-50%)" onclick="editarAtributo('jujutsu')">Jujutsu<br><span style="font-size:28px">${atributos.jujutsu}</span></div>
+        <div class="attr" style="top:50%;left:10%;transform:translate(-50%,-50%)" onclick="editarAtributo('fisico')">Físico<br><span style="font-size:28px">${atributos.fisico}</span></div>
+        <div class="attr" style="top:50%;right:10%;transform:translate(50%,-50%)" onclick="editarAtributo('agilidade')">Agilidade<br><span style="font-size:28px">${atributos.agilidade}</span></div>
+        <div class="attr" style="bottom:12%;left:50%;transform:translate(-50%,50%)" onclick="editarAtributo('intelecto')">Intelecto<br><span style="font-size:28px">${atributos.intelecto}</span></div>
+        <div class="attr" style="top:50%;left:50%;transform:translate(-50%,-50%)" onclick="editarAtributo('carisma')">Carisma<br><span style="font-size:28px">${atributos.carisma}</span></div>
       `;
     }
 
-    function aumentarAtributo(attr) {
-      if (pontosRestantes > 0 && atributos[attr] < 5) {
-        atributos[attr]++;
-        pontosRestantes--;
-        calcularTudo();
+    function editarAtributo(attr) {
+      const valor = prompt(`Novo valor para ${attr} (máx 5):`, atributos[attr]);
+      if (valor !== null) {
+        const novo = parseInt(valor);
+        if (novo >= 1 && novo <= 5) {
+          atributos[attr] = novo;
+          calcularTudo();
+        }
       }
     }
 
@@ -247,64 +254,54 @@
 
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
-      if (n === 0) content.innerHTML = `<h2>Atributos</h2><p>Clique nos atributos no círculo para distribuir seus 5 pontos.</p>`;
-      else if (n === 1) content.innerHTML = `<h2>Repertório</h2><textarea style="height:220px;width:100%;" placeholder="Suas 10 informações narrativas..."></textarea>`;
-      else if (n === 2) content.innerHTML = `<h2>Técnica Inata</h2>
-        <input type="text" placeholder="Conceito da Inata">
-        <textarea style="height:180px;width:100%;" placeholder="Descrição da Técnica..."></textarea>`;
-      else content.innerHTML = `<h2>Maestria</h2><p>Distribua Pontos de Maestria (Liberação, Barreiras, etc.)</p>`;
+      if (n === 0) {
+        content.innerHTML = `<h2>Inventário</h2><p>Campo para equipamentos, ferramentas amaldiçoadas, etc.</p><textarea style="height:200px;width:100%;" placeholder="Liste seus itens..."></textarea>`;
+      } else if (n === 1) {
+        content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Suas informações narrativas (até 10)..."></textarea>`;
+      } else if (n === 2) {
+        content.innerHTML = `<h2>Técnica Inata</h2>
+          <input type="text" placeholder="Conceito da Inata">
+          <textarea style="height:120px;" placeholder="Descrição completa da Técnica Inata..."></textarea>
+          <h3>Técnicas Extensivas</h3>
+          <input type="text" placeholder="Nome da Extensiva 1">
+          <textarea placeholder="Descrição + Custo + Dano + Alcance..."></textarea>`;
+      } else {
+        content.innerHTML = `<h2>Maestria</h2><p>Liberação de Energia, Barreiras, Shikigamis, Anti-Domínio...</p>`;
+      }
     }
 
     function carregarImagem(e) {
       const file = e.target.files[0];
       if (file) {
         const reader = new FileReader();
-        reader.onload = function(ev) {
-          document.getElementById('avatar').src = ev.target.result;
-        };
+        reader.onload = ev => document.getElementById('avatar').src = ev.target.result;
         reader.readAsDataURL(file);
       }
     }
 
     function salvarFicha() {
-      const ficha = {
-        nome: document.getElementById('nome').value,
-        especie: document.getElementById('especie').value,
-        cla: document.getElementById('cla').value,
-        atributos: atributos,
-        avatar: document.getElementById('avatar').src
-      };
+      const ficha = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, atributos };
       localStorage.setItem('camelliaFicha', JSON.stringify(ficha));
-      alert('Ficha salva com sucesso!');
+      alert('Ficha salva!');
     }
 
     function exportarFicha() {
-      const ficha = {
-        nome: document.getElementById('nome').value,
-        especie: document.getElementById('especie').value,
-        cla: document.getElementById('cla').value,
-        atributos: atributos
-      };
+      const ficha = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, atributos };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ficha, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "ficha_camellia.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
+      const a = document.createElement('a');
+      a.href = dataStr;
+      a.download = "ficha_camellia.json";
+      a.click();
     }
 
     function carregarFicha() {
       const saved = localStorage.getItem('camelliaFicha');
       if (saved) {
-        const ficha = JSON.parse(saved);
-        document.getElementById('nome').value = ficha.nome || '';
-        document.getElementById('especie').value = ficha.especie || 'humano';
-        document.getElementById('cla').value = ficha.cla || 'nenhum';
-        atributos = ficha.atributos || atributos;
-        if (ficha.avatar) document.getElementById('avatar').src = ficha.avatar;
+        const f = JSON.parse(saved);
+        document.getElementById('nome').value = f.nome || '';
+        document.getElementById('especie').value = f.especie || 'humano';
+        atributos = f.atributos || atributos;
         calcularTudo();
-        alert('Ficha carregada!');
       }
     }
 
