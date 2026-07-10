@@ -242,12 +242,12 @@
 
     function editarAtributo(attr) {
       const atual = atributos[attr];
-      const novoStr = prompt(`Valor para ${attr} (1 a 4):`, atual);
+      const novoStr = prompt(`Valor para ${attr} (máximo 4):`, atual);
       if (novoStr === null) return;
 
       let novo = parseInt(novoStr);
       if (isNaN(novo) || novo < 1 || novo > 4) {
-        alert("Valor deve estar entre 1 e 4!");
+        alert("O valor deve estar entre 1 e 4!");
         return;
       }
 
