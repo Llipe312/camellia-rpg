@@ -114,7 +114,7 @@
       padding: 12px;
       border-radius: 10px;
       width: 100%;
-      margin-bottom: 12px;
+      margin-bottom: 8px;
     }
     button {
       padding: 10px 16px;
@@ -197,6 +197,8 @@
     let atributos = { jujutsu:1, fisico:1, agilidade:1, intelecto:1, carisma:1 };
     let pontosRestantes = 5;
     let statusAtual = { pv:150, pea:140, pe:100 };
+    let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
+    let pontosMaestria = 0; // vai aumentando com nível
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -217,7 +219,6 @@
       document.getElementById('pea-total').textContent = peaTotal;
       document.getElementById('pe-total').textContent = peTotal;
 
-      // Atualiza atual se necessário
       if (statusAtual.pv > pvTotal) statusAtual.pv = pvTotal;
       if (statusAtual.pea > peaTotal) statusAtual.pea = peaTotal;
       if (statusAtual.pe > peTotal) statusAtual.pe = peTotal;
@@ -282,14 +283,41 @@
 
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
-      if (n === 0) content.innerHTML = `<h2>Inventário</h2><textarea style="height:220px;width:100%;" placeholder="Itens e equipamentos..."></textarea>`;
-      else if (n === 1) content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Informações narrativas..."></textarea>`;
-      else if (n === 2) content.innerHTML = `<h2>Técnica Inata</h2>
-        <input type="text" placeholder="Conceito da Inata">
-        <textarea style="height:120px;" placeholder="Descrição..."></textarea>
-        <h3>Técnicas Extensivas</h3>
-        <input type="text" placeholder="Nome Extensiva 1"><textarea placeholder="Descrição + Custo..."></textarea>`;
-      else content.innerHTML = `<h2>Maestria</h2><p>Distribua seus Pontos de Maestria...</p>`;
+      if (n === 0) {
+        content.innerHTML = `<h2>Inventário</h2><textarea style="height:220px;width:100%;" placeholder="Itens, ferramentas amaldiçoadas..."></textarea>`;
+      } else if (n === 1) {
+        content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Suas informações narrativas..."></textarea>`;
+      } else if (n === 2) {
+        content.innerHTML = `<h2>Técnica Inata</h2>
+          <input type="text" placeholder="Conceito da Técnica Inata">
+          <textarea style="height:100px;" placeholder="Descrição completa..."></textarea>
+          <h3>Técnicas Extensivas (7 no total)</h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div><input type="text" placeholder="Nome Ext. 1"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+            <div><input type="text" placeholder="Nome Ext. 2"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+            <div><input type="text" placeholder="Nome Ext. 3"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+            <div><input type="text" placeholder="Nome Ext. 4"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+            <div><input type="text" placeholder="Nome Ext. 5"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+            <div><input type="text" placeholder="Nome Ext. 6"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+            <div><input type="text" placeholder="Nome Ext. 7"><textarea placeholder="Custo (PEA/PE), Dano, Alcance, Duração..."></textarea></div>
+          </div>`;
+      } else {
+        content.innerHTML = `<h2>Maestria</h2>
+          <p>Pontos de Maestria restantes: <strong id="pm-restantes">1</strong></p>
+          <div style="display:flex; gap:30px; margin-top:20px;">
+            <div style="text-align:center;">
+              <div style="width:120px;height:120px;border:8px solid var(--roxo);border-radius:50%;position:relative;margin:auto;">
+                <div style="position:absolute;top:20%;left:50%;transform:translate(-50%,-50%)">Lib. Energia<br><strong>1</strong></div>
+                <div style="position:absolute;top:50%;left:10%;">Anti-Dom.<br><strong>0</strong></div>
+                <div style="position:absolute;top:50%;right:10%;">Barreiras<br><strong>0</strong></div>
+                <div style="position:absolute;bottom:20%;left:50%;transform:translate(-50%,50%)">Shikigamis<br><strong>0</strong></div>
+              </div>
+            </div>
+            <div>
+              <p>Clique nas categorias para distribuir pontos.</p>
+            </div>
+          </div>`;
+      }
     }
 
     function carregarImagem(e) {
