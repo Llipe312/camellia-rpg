@@ -59,8 +59,8 @@
       padding: 20px;
       border-radius: 16px;
     }
-    .status-item strong { display: block; font-size: 1.1em; }
-    .value { font-size: 36px; font-weight: bold; }
+    .value { font-size: 36px; font-weight: bold; cursor: pointer; }
+    .value:hover { color: var(--rosa); }
 
     .circle {
       width: 400px; height: 400px;
@@ -125,11 +125,6 @@
       cursor: pointer;
       margin: 5px;
     }
-    .attr-controls {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
   </style>
 </head>
 <body>
@@ -170,9 +165,9 @@
 
     <div class="main">
       <div class="status-grid">
-        <div><strong>PV</strong><br><span id="pv-total" class="value">150</span> / <span id="pv-atual" class="value">150</span></div>
-        <div><strong>PEA</strong><br><span id="pea-total" class="value">140</span> / <span id="pea-atual" class="value">140</span></div>
-        <div><strong>PE</strong><br><span id="pe-total" class="value">100</span> / <span id="pe-atual" class="value">100</span></div>
+        <div><strong>PV</strong><br><span id="pv-total" class="value">150</span> / <span id="pv-atual" class="value" onclick="editarAtual('pv')">150</span></div>
+        <div><strong>PEA</strong><br><span id="pea-total" class="value">140</span> / <span id="pea-atual" class="value" onclick="editarAtual('pea')">140</span></div>
+        <div><strong>PE</strong><br><span id="pe-total" class="value">100</span> / <span id="pe-atual" class="value" onclick="editarAtual('pe')">100</span></div>
       </div>
 
       <div class="circle" id="circle"></div>
@@ -201,6 +196,7 @@
   <script>
     let atributos = { jujutsu:1, fisico:1, agilidade:1, intelecto:1, carisma:1 };
     let pontosRestantes = 5;
+    let statusAtual = { pv:150, pea:140, pe:100 };
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -212,16 +208,23 @@
     function calcularTudo() {
       const esp = document.getElementById('especie').value;
       const base = especies[esp];
-      const pv = base.pvBase + (atributos.fisico * base.pvMult);
-      const pea = base.peaBase + (atributos.jujutsu * base.peaMult);
-      const pe = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
 
-      document.getElementById('pv-total').textContent = pv;
-      document.getElementById('pv-atual').textContent = pv;
-      document.getElementById('pea-total').textContent = pea;
-      document.getElementById('pea-atual').textContent = pea;
-      document.getElementById('pe-total').textContent = pe;
-      document.getElementById('pe-atual').textContent = pe;
+      const pvTotal = base.pvBase + (atributos.fisico * base.pvMult);
+      const peaTotal = base.peaBase + (atributos.jujutsu * base.peaMult);
+      const peTotal = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
+
+      document.getElementById('pv-total').textContent = pvTotal;
+      document.getElementById('pea-total').textContent = peaTotal;
+      document.getElementById('pe-total').textContent = peTotal;
+
+      if (statusAtual.pv > pvTotal) statusAtual.pv = pvTotal;
+      if (statusAtual.pea > peaTotal) statusAtual.pea = peaTotal;
+      if (statusAtual.pe > peTotal) statusAtual.pe = peTotal;
+
+      document.getElementById('pv-atual').textContent = statusAtual.pv;
+      document.getElementById('pea-atual').textContent = statusAtual.pea;
+      document.getElementById('pe-atual').textContent = statusAtual.pe;
+
       document.getElementById('pontos-restantes').textContent = pontosRestantes;
       desenharCirculo();
     }
@@ -238,12 +241,35 @@
     }
 
     function editarAtributo(attr) {
-      const valor = prompt(`Novo valor para ${attr} (máx 5):`, atributos[attr]);
-      if (valor !== null) {
-        const novo = parseInt(valor);
-        if (novo >= 1 && novo <= 5) {
-          atributos[attr] = novo;
-          calcularTudo();
+      const atual = atributos[attr];
+      const novoStr = prompt(`Valor para ${attr} (1 a 4):`, atual);
+      if (novoStr === null) return;
+
+      let novo = parseInt(novoStr);
+      if (isNaN(novo) || novo < 1 || novo > 4) {
+        alert("Valor deve estar entre 1 e 4!");
+        return;
+      }
+
+      const diff = novo - atual;
+      if (diff > 0 && pontosRestantes < diff) {
+        alert("Pontos restantes insuficientes!");
+        return;
+      }
+
+      atributos[attr] = novo;
+      pontosRestantes -= diff;
+      calcularTudo();
+    }
+
+    function editarAtual(tipo) {
+      let atual = statusAtual[tipo];
+      const novo = prompt(`Valor ATUAL de ${tipo.toUpperCase()}:`, atual);
+      if (novo !== null) {
+        const val = parseInt(novo);
+        if (!isNaN(val) && val >= 0) {
+          statusAtual[tipo] = Math.min(val, parseInt(document.getElementById(tipo + '-total').textContent));
+          document.getElementById(tipo + '-atual').textContent = statusAtual[tipo];
         }
       }
     }
@@ -254,20 +280,14 @@
 
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
-      if (n === 0) {
-        content.innerHTML = `<h2>Inventário</h2><p>Campo para equipamentos, ferramentas amaldiçoadas, etc.</p><textarea style="height:200px;width:100%;" placeholder="Liste seus itens..."></textarea>`;
-      } else if (n === 1) {
-        content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Suas informações narrativas (até 10)..."></textarea>`;
-      } else if (n === 2) {
-        content.innerHTML = `<h2>Técnica Inata</h2>
-          <input type="text" placeholder="Conceito da Inata">
-          <textarea style="height:120px;" placeholder="Descrição completa da Técnica Inata..."></textarea>
-          <h3>Técnicas Extensivas</h3>
-          <input type="text" placeholder="Nome da Extensiva 1">
-          <textarea placeholder="Descrição + Custo + Dano + Alcance..."></textarea>`;
-      } else {
-        content.innerHTML = `<h2>Maestria</h2><p>Liberação de Energia, Barreiras, Shikigamis, Anti-Domínio...</p>`;
-      }
+      if (n === 0) content.innerHTML = `<h2>Inventário</h2><textarea style="height:220px;width:100%;" placeholder="Itens e equipamentos..."></textarea>`;
+      else if (n === 1) content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Informações narrativas..."></textarea>`;
+      else if (n === 2) content.innerHTML = `<h2>Técnica Inata</h2>
+        <input type="text" placeholder="Conceito da Inata">
+        <textarea style="height:120px;" placeholder="Descrição..."></textarea>
+        <h3>Técnicas Extensivas</h3>
+        <input type="text" placeholder="Nome Extensiva 1"><textarea placeholder="Descrição + Custo..."></textarea>`;
+      else content.innerHTML = `<h2>Maestria</h2><p>Distribua seus Pontos de Maestria...</p>`;
     }
 
     function carregarImagem(e) {
@@ -279,14 +299,14 @@
       }
     }
 
-    function salvarFicha() {
-      const ficha = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, atributos };
+    function salvarFicha() { 
+      const ficha = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, atributos, statusAtual };
       localStorage.setItem('camelliaFicha', JSON.stringify(ficha));
       alert('Ficha salva!');
     }
 
     function exportarFicha() {
-      const ficha = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, atributos };
+      const ficha = { nome: document.getElementById('nome').value, especie: document.getElementById('especie').value, atributos, statusAtual };
       const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(ficha, null, 2));
       const a = document.createElement('a');
       a.href = dataStr;
@@ -301,6 +321,7 @@
         document.getElementById('nome').value = f.nome || '';
         document.getElementById('especie').value = f.especie || 'humano';
         atributos = f.atributos || atributos;
+        if (f.statusAtual) statusAtual = f.statusAtual;
         calcularTudo();
       }
     }
