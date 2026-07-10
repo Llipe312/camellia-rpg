@@ -165,9 +165,9 @@
 
     <div class="main">
       <div class="status-grid">
-        <div><strong>PV</strong><br><span id="pv-total" class="value">150</span> / <span id="pv-atual" class="value" onclick="editarAtual('pv')">150</span></div>
-        <div><strong>PEA</strong><br><span id="pea-total" class="value">140</span> / <span id="pea-atual" class="value" onclick="editarAtual('pea')">140</span></div>
-        <div><strong>PE</strong><br><span id="pe-total" class="value">100</span> / <span id="pe-atual" class="value" onclick="editarAtual('pe')">100</span></div>
+        <div><strong>PV</strong><br><span id="pv-atual" class="value" onclick="editarAtual('pv')">150</span> / <span id="pv-total" class="value">150</span></div>
+        <div><strong>PEA</strong><br><span id="pea-atual" class="value" onclick="editarAtual('pea')">140</span> / <span id="pea-total" class="value">140</span></div>
+        <div><strong>PE</strong><br><span id="pe-atual" class="value" onclick="editarAtual('pe')">100</span> / <span id="pe-total" class="value">100</span></div>
       </div>
 
       <div class="circle" id="circle"></div>
@@ -217,6 +217,7 @@
       document.getElementById('pea-total').textContent = peaTotal;
       document.getElementById('pe-total').textContent = peTotal;
 
+      // Atualiza atual se necessário
       if (statusAtual.pv > pvTotal) statusAtual.pv = pvTotal;
       if (statusAtual.pea > peaTotal) statusAtual.pea = peaTotal;
       if (statusAtual.pe > peTotal) statusAtual.pe = peTotal;
@@ -242,7 +243,7 @@
 
     function editarAtributo(attr) {
       const atual = atributos[attr];
-      const novoStr = prompt(`Valor para ${attr} (máximo 4):`, atual);
+      const novoStr = prompt(`Valor para ${attr} (1 a 4):`, atual);
       if (novoStr === null) return;
 
       let novo = parseInt(novoStr);
@@ -268,7 +269,8 @@
       if (novo !== null) {
         const val = parseInt(novo);
         if (!isNaN(val) && val >= 0) {
-          statusAtual[tipo] = Math.min(val, parseInt(document.getElementById(tipo + '-total').textContent));
+          const total = parseInt(document.getElementById(tipo + '-total').textContent);
+          statusAtual[tipo] = Math.min(val, total);
           document.getElementById(tipo + '-atual').textContent = statusAtual[tipo];
         }
       }
