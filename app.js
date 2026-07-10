@@ -1,167 +1,72 @@
-const DEFAULT_ATTRIBUTES = ["Jujutsu", "Físico", "Agilidade", "Intelecto", "Carisma"];
+let atributos = { jujutsu: 1, fisico: 1, agilidade: 1, intelecto: 1, carisma: 1 };
+let pontosRestantes = 5;
 
-let chars = [];
-let currentId = null;
+const especies = {
+  humano:     { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12, peMult:2 },
+  mestico:    { pvBase:12, peaBase:20, peBase:5, pvMult:10, peaMult:12, peMult:2 },
+  shimuriano: { pvBase:10, peaBase:20, peBase:5, pvMult:10, peaMult:12, peMult:3 },
+  corpo:      { pvBase:0,  peaBase:16, peBase:5, pvMult:0,  peaMult:12, peMult:2 }
+};
 
-function qs(id) { return document.getElementById(id); }
+function calcularTudo() {
+  const esp = document.getElementById('especie').value;
+  const base = especies[esp];
 
-function makeDefaultChar(name = 'Novo Feiticeiro') {
-  const attributes = {};
-  DEFAULT_ATTRIBUTES.forEach(a => attributes[a] = 1);
-  return {
-    id: Date.now().toString(36),
-    name,
-    age: '',
-    species: 'Humano',
-    grade: '4',
-    bio: '',
-    portrait: '',
-    attributes,
-    hasEAR: false,
-    innateTech: '',
-    pvMax: 20, pvNow: 20,
-    peaMax: 20, peaNow: 20,
-    peMax: 8, peNow: 8
-  };
+  const pv  = base.pvBase  + (atributos.fisico * base.pvMult);
+  const pea = base.peaBase + (atributos.jujutsu * base.peaMult);
+  const pe  = base.peBase + atributos.agilidade + (atributos.intelecto * 2) + (atributos.carisma * 2);
+
+  document.getElementById('pv').textContent = pv;
+  document.getElementById('pea').textContent = pea;
+  document.getElementById('pe').textContent = pe;
+  document.getElementById('pontos-restantes').textContent = pontosRestantes;
+
+  desenharCirculo();
 }
 
-function loadStorage() {
-  const raw = localStorage.getItem('camellia_chars');
-  chars = raw ? JSON.parse(raw) : [makeDefaultChar('Gojo Satoru')];
-  saveStorage();
+function desenharCirculo() {
+  const circle = document.getElementById('circle');
+  circle.innerHTML = `
+    <div class="attr" style="top:12%;left:50%;transform:translate(-50%,-50%)" onclick="aumentarAtributo('jujutsu')">Jujutsu<br><span style="font-size:28px">${atributos.jujutsu}</span></div>
+    <div class="attr" style="top:50%;left:8%;transform:translate(-50%,-50%)" onclick="aumentarAtributo('fisico')">Físico<br><span style="font-size:28px">${atributos.fisico}</span></div>
+    <div class="attr" style="top:50%;right:8%;transform:translate(50%,-50%)" onclick="aumentarAtributo('agilidade')">Agilidade<br><span style="font-size:28px">${atributos.agilidade}</span></div>
+    <div class="attr" style="bottom:12%;left:50%;transform:translate(-50%,50%)" onclick="aumentarAtributo('intelecto')">Intelecto<br><span style="font-size:28px">${atributos.intelecto}</span></div>
+    <div class="attr" style="top:50%;left:50%;transform:translate(-50%,-50%)" onclick="aumentarAtributo('carisma')">Carisma<br><span style="font-size:28px">${atributos.carisma}</span></div>
+  `;
 }
 
-function saveStorage() {
-  localStorage.setItem('camellia_chars', JSON.stringify(chars));
-  renderList();
-}
-
-function calculateMaxStats(attributes) {
-  const f = attributes.Físico || 1;
-  const j = attributes.Jujutsu || 1;
-  const a = attributes.Agilidade || 1;
-  const i = attributes.Intelecto || 1;
-
-  return {
-    pvMax: 12 + (f * 8),
-    peaMax: 16 + (j * 6),
-    peMax: 5 + (i * 2) + (a * 1)
-  };
-}
-
-function renderAttributes(c) {
-  const container = qs('attributes');
-  if (!container) {
-    console.error("ERRO: #attributes não encontrado no HTML!");
-    return;
+function aumentarAtributo(attr) {
+  if (pontosRestantes > 0 && atributos[attr] < 5) {
+    atributos[attr]++;
+    pontosRestantes--;
+    calcularTudo();
   }
-
-  container.innerHTML = '';
-
-  Object.keys(c.attributes).forEach(key => {
-    const div = document.createElement('div');
-    div.style = "display: flex; align-items: center; gap: 15px; margin: 10px 0; padding: 8px; background: #1f1f24; border-radius: 6px;";
-    div.innerHTML = `
-      <label style="width: 140px; font-weight: bold;">${key}</label>
-      <input type="number" value="${c.attributes[key]}" min="1" max="5" style="width: 80px; padding: 8px; font-size: 1.1em;">
-    `;
-
-    const input = div.querySelector('input');
-    input.onchange = () => {
-      c.attributes[key] = parseInt(input.value) || 1;
-      const stats = calculateMaxStats(c.attributes);
-      c.pvMax = stats.pvMax;
-      c.peaMax = stats.peaMax;
-      c.peMax = stats.peMax;
-
-      qs('pvMax').value = c.pvMax;
-      qs('peaMax').value = c.peaMax;
-      qs('peMax').value = c.peMax;
-      saveStorage();
-    };
-    container.appendChild(div);
-  });
 }
 
-function openChar(id) {
-  const c = chars.find(x => x.id === id);
-  if (!c) return;
-  currentId = id;
-
-  qs('name').value = c.name;
-  qs('age').value = c.age;
-  qs('species').value = c.species;
-  qs('grade').value = c.grade;
-  qs('bio').value = c.bio;
-  qs('portraitImg').src = c.portrait || '';
-  qs('portraitUrl').value = c.portrait || '';
-  qs('innateTech').value = c.innateTech || '';
-
-  qs('pvMax').value = c.pvMax;
-  qs('pvNow').value = c.pvNow;
-  qs('peaMax').value = c.peaMax;
-  qs('peaNow').value = c.peaNow;
-  qs('peMax').value = c.peMax;
-  qs('peNow').value = c.peNow;
-
-  qs('earCheckbox').checked = !!c.hasEAR;
-
-  renderAttributes(c);
-  renderList(qs('search').value);
+function toggleCustomCla() {
+  const custom = document.getElementById('custom-cla');
+  custom.style.display = document.getElementById('cla').value === 'custom' ? 'block' : 'none';
 }
 
-function renderList(filter = '') {
-  const list = qs('charList');
-  list.innerHTML = '';
-  chars.filter(c => c.name.toLowerCase().includes(filter.toLowerCase()))
-       .forEach(c => {
-         const el = document.createElement('div');
-         el.textContent = c.name;
-         el.onclick = () => openChar(c.id);
-         list.appendChild(el);
-       });
+function mudarTab(n) {
+  const content = document.getElementById('tab-content');
+  if (n === 0) {
+    content.innerHTML = `<h2>Atributos</h2><p>Clique nos atributos no círculo para distribuir seus 5 pontos.</p>`;
+  } else if (n === 1) {
+    content.innerHTML = `<h2>Repertório</h2>
+      <p style="color:#aaa;">Crie até 10 informações narrativas sobre seu personagem.</p>
+      <textarea placeholder="Ex: Ex-aluno da Escola de Tóquio..." style="height:220px; width:100%;"></textarea>`;
+  } else if (n === 2) {
+    content.innerHTML = `<h2>Técnica Inata</h2>
+      <input type="text" placeholder="Conceito Base da Técnica">
+      <textarea placeholder="Descreva sua Técnica Inata..." style="height:200px; width:100%;"></textarea>`;
+  } else {
+    content.innerHTML = `<h2>Maestria</h2><p>Distribua seus Pontos de Maestria...</p>`;
+  }
 }
 
-function writeBack() {
-  if (!currentId) return;
-  const c = chars.find(x => x.id === currentId);
-  if (!c) return;
-
-  c.name = qs('name').value;
-  c.age = qs('age').value;
-  c.species = qs('species').value;
-  c.grade = qs('grade').value;
-  c.bio = qs('bio').value;
-  c.portrait = qs('portraitUrl').value.trim();
-  c.innateTech = qs('innateTech').value;
-  c.hasEAR = qs('earCheckbox').checked;
-
-  c.pvNow = parseInt(qs('pvNow').value) || 0;
-  c.peaNow = parseInt(qs('peaNow').value) || 0;
-  c.peNow = parseInt(qs('peNow').value) || 0;
-
-  saveStorage();
-}
-
-// Inicialização
-document.addEventListener('DOMContentLoaded', () => {
-  loadStorage();
-  if (chars.length) openChar(chars[0].id);
-
-  qs('newBtn').onclick = () => {
-    const c = makeDefaultChar('Novo Feiticeiro ' + (chars.length + 1));
-    chars.push(c);
-    saveStorage();
-    openChar(c.id);
-  };
-
-  qs('saveBtn').onclick = writeBack;
-  qs('loadPortraitBtn').onclick = () => {
-    if (currentId) {
-      const c = chars.find(x => x.id === currentId);
-      c.portrait = qs('portraitUrl').value.trim();
-      qs('portraitImg').src = c.portrait;
-      saveStorage();
-    }
-  };
-});
+window.onload = () => {
+  desenharCirculo();
+  calcularTudo();
+  mudarTab(0);
+};
