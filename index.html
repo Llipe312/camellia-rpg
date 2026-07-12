@@ -165,11 +165,37 @@
       <label>Peculiaridade</label>
       <select id="peculiaridade">
         <option value="nenhuma">Nenhuma</option>
-        <option value="seis-olhos">Seis Olhos</option>
-        <option value="ear">Energia Amaldiçoada Reversa</option>
-        <option value="outra">Outra (especificar abaixo)</option>
+        <option value="gemeos">Gêmeos Monozigotos</option>
+        <option value="restricao-inativa">Restrição Celestial Inativa</option>
+        <option value="restricao-completa">Restrição Celestial Completa</option>
+        <option value="restricao-fisica">Restrição Celestial Física</option>
+        <option value="hospedeiro">Hospedeiro</option>
+        <option value="hospedeiro-passivo">Hospedeiro Passivo</option>
+        <option value="reencarnado">Feiticeiro Reencarnado</option>
+        <option value="sem-inata">Sem Inata</option>
+        <option value="absurdo">Absurdo</option>
       </select>
-      <input type="text" id="peculiaridade-custom" placeholder="Descreva a peculiaridade" style="display:none;">
+
+      <label>Grau</label>
+      <select id="grau">
+        <option value="4">Grau 4</option>
+        <option value="3">Grau 3</option>
+        <option value="2">Grau 2</option>
+        <option value="1">Grau 1</option>
+        <option value="especial">Grau Especial</option>
+      </select>
+
+      <label>Possui EAR?</label>
+      <select id="ear">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
+
+      <label style="color:#00aaff;">Possui Seis Olhos?</label>
+      <select id="seis-olhos">
+        <option value="nao">Não</option>
+        <option value="sim">Sim</option>
+      </select>
     </div>
 
     <div class="main">
@@ -190,6 +216,7 @@
         <button onclick="mudarTab(1)" class="tab-btn">Repertório</button>
         <button onclick="mudarTab(2)" class="tab-btn">Técnica Inata</button>
         <button onclick="mudarTab(3)" class="tab-btn">Maestria</button>
+        <button onclick="mudarTab(4)" class="tab-btn">Shikigamis</button>
       </div>
 
       <div id="tab-content" class="tab-content"></div>
@@ -206,9 +233,6 @@
     let atributos = { jujutsu:1, fisico:1, agilidade:1, intelecto:1, carisma:1 };
     let pontosRestantes = 5;
     let statusAtual = { pv:150, pea:140, pe:100 };
-    let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
-    let pontosMaestria = 1;
-    let ptRestantes = 1;
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -301,17 +325,27 @@
         content.innerHTML = `<h2>Técnica Inata</h2>
           <input type="text" placeholder="Conceito da Técnica Inata">
           <textarea style="height:100px;" placeholder="Descrição completa..."></textarea>
-          <p>PT restantes: <strong id="pt-restantes">${ptRestantes}</strong></p>
+          <p>PT restantes: <strong id="pt-restantes">1</strong></p>
           <h3>Técnicas Extensivas</h3>
-          <div id="extensivas-container"></div>`;
+          <div id="extensivas-container"></div>
+          <h3>Técnica Máxima</h3>
+          <input type="text" placeholder="Nome da Técnica Máxima">
+          <textarea placeholder="Descrição..."></textarea>
+          <h3>Expansão de Domínio</h3>
+          <input type="text" placeholder="Nome da Expansão">
+          <textarea placeholder="Descrição..."></textarea>`;
         criarExtensivas();
-      } else {
+      } else if (n === 3) {
         content.innerHTML = `<h2>Maestria</h2>
-          <p>Pontos de Maestria restantes: <strong id="pm-restantes">${pontosMaestria}</strong></p>
+          <p>Pontos de Maestria restantes: <strong id="pm-restantes">1</strong></p>
           <div class="maestria-circle" id="maestria-circle"></div>
           <h3>Desbloqueados</h3>
           <div id="maestria-desbloqueados"></div>`;
         desenharMaestria();
+      } else if (n === 4) {
+        content.innerHTML = `<h2>Shikigamis (12)</h2>
+          <p>Crie até 12 shikigamis abaixo:</p>
+          <textarea style="height:400px;width:100%;" placeholder="Shikigami 1: Nome, PV, PE, Atributos..."></textarea>`;
       }
     }
 
@@ -348,7 +382,7 @@
       if (ptRestantes <= 0) return alert("PT insuficientes!");
       ptRestantes--;
       document.getElementById('pt-restantes').textContent = ptRestantes;
-      alert(`Técnica Extensiva ${i} criada com sucesso!`);
+      alert(`Técnica Extensiva ${i} criada!`);
     }
 
     function desenharMaestria() {
@@ -362,7 +396,6 @@
 
       const desbloqueados = document.getElementById('maestria-desbloqueados');
       let html = '';
-
       if (maestria.liberacao >= 1) html += `<p><strong>Liberação de Energia:</strong> Manipulação básica de energia amaldiçoada</p>`;
       if (maestria.barreiras >= 1) html += `<p><strong>Técnicas de Barreira:</strong> Desbloqueia Barreiras Simples</p>`;
       if (maestria.antidominio >= 1) html += `<p><strong>Técnicas Anti-Domínio:</strong> Desbloqueia Domínio Simples</p>`;
