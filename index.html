@@ -141,12 +141,6 @@
       font-weight: bold;
       width: 90px;
     }
-    .extensiva {
-      border: 1px solid #555;
-      border-radius: 10px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
   </style>
 </head>
 <body>
@@ -221,7 +215,6 @@
     let statusAtual = { pv:150, pea:140, pe:100 };
     let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
     let pontosMaestria = 1;
-    let ptRestantes = 1;
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -314,13 +307,13 @@
         content.innerHTML = `<h2>Técnica Inata</h2>
           <input type="text" placeholder="Conceito da Técnica Inata">
           <textarea style="height:100px;" placeholder="Descrição completa..."></textarea>
-          <p>PT restantes: <strong id="pt-restantes">${ptRestantes}</strong></p>
+          <p>PT restantes: <strong id="pt-restantes">1</strong></p>
           <h3>Técnicas Extensivas</h3>
           <div id="extensivas-container"></div>`;
         criarExtensivas();
       } else {
         content.innerHTML = `<h2>Maestria</h2>
-          <p>Pontos de Maestria restantes: <strong id="pm-restantes">${pontosMaestria}</strong></p>
+          <p>Pontos de Maestria restantes: <strong id="pm-restantes">1</strong></p>
           <div class="maestria-circle" id="maestria-circle"></div>
           <h3>Desbloqueados</h3>
           <div id="maestria-desbloqueados"></div>`;
@@ -361,7 +354,7 @@
       if (ptRestantes <= 0) return alert("PT insuficientes!");
       ptRestantes--;
       document.getElementById('pt-restantes').textContent = ptRestantes;
-      alert(`Técnica Extensiva ${i} criada! (1 PT gasto)`);
+      alert(`Técnica Extensiva ${i} criada com sucesso!`);
     }
 
     function desenharMaestria() {
@@ -374,10 +367,14 @@
       `;
 
       const desbloqueados = document.getElementById('maestria-desbloqueados');
-      desbloqueados.innerHTML = `
-        <p><strong>Liberação de Energia:</strong> Manipulação básica de energia amaldiçoada</p>
-        <p><strong>Técnicas de Barreira:</strong> Desbloqueia Barreiras Simples</p>
-      `;
+      let html = '';
+
+      if (maestria.liberacao >= 1) html += `<p><strong>Liberação de Energia:</strong> Manipulação básica de energia amaldiçoada</p>`;
+      if (maestria.barreiras >= 1) html += `<p><strong>Técnicas de Barreira:</strong> Desbloqueia Barreiras Simples</p>`;
+      if (maestria.antidominio >= 1) html += `<p><strong>Técnicas Anti-Domínio:</strong> Desbloqueia Domínio Simples</p>`;
+      if (maestria.shikigamis >= 1) html += `<p><strong>Shikigamis:</strong> Criação de Shikigami Simples</p>`;
+
+      desbloqueados.innerHTML = html || '<p>Nenhuma habilidade desbloqueada ainda.</p>';
     }
 
     function editarMaestria(tipo) {
