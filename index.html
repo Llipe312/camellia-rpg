@@ -141,6 +141,17 @@
       font-weight: bold;
       width: 100px;
     }
+    .shikigami-box {
+      border: 1px solid #555;
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 12px;
+    }
+    .item-row {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -254,6 +265,7 @@
     let statusAtual = { pv:150, pea:140, pe:100 };
     let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
     let pontosMaestria = 1;
+    let itensInventario = [];
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -340,9 +352,26 @@
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
       if (n === 0) {
-        content.innerHTML = `<h2>Inventário</h2><textarea style="height:220px;width:100%;" placeholder="Itens e equipamentos..."></textarea>`;
+        content.innerHTML = `<h2>Inventário</h2>
+          <p>Máx. Bagagem: <input type="number" id="max-bagagem" value="4" style="width:80px;"> | Atual: <input type="number" id="atual-bagagem" value="0" style="width:80px;"></p>
+          <button onclick="adicionarItem()">+ Adicionar Item</button>
+          <div id="lista-itens"></div>`;
       } else if (n === 1) {
-        content.innerHTML = `<h2>Repertório</h2><textarea style="height:250px;width:100%;" placeholder="Suas informações narrativas..."></textarea>`;
+        content.innerHTML = `<h2>Repertório / Ficha de Personagem</h2>
+          <input type="text" id="nome-personagem" placeholder="Nome" value="Ishida Nishiyama">
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
+            <div>Idade: <input type="number" value="18" style="width:80px;"></div>
+            <div>Altura: <input type="text" value="1,75" style="width:80px;"></div>
+            <div>Peso: <input type="text" value="" placeholder="kg"></div>
+            <div>Gênero: <input type="text" value="Masculino"></div>
+            <div>Cabelos: <input type="text" value=""></div>
+            <div>Olhos: <input type="text" value=""></div>
+            <div>Pele: <input type="text" value=""></div>
+          </div>
+          <label>Personalidade</label>
+          <textarea style="height:80px;" placeholder="Descreva a personalidade..."></textarea>
+          <label>História de Personagem</label>
+          <textarea style="height:120px;" placeholder="História..."></textarea>`;
       } else if (n === 2) {
         content.innerHTML = `<h2>Técnica Inata</h2>
           <input type="text" placeholder="Conceito da Técnica Inata">
@@ -362,16 +391,47 @@
           <p>Pontos de Maestria restantes: <strong id="pm-restantes">1</strong></p>
           <div class="maestria-circle" id="maestria-circle"></div>
           <h3>Votos Vinculativos</h3>
-          <textarea style="height:120px;" placeholder="Desbloqueia o Potencial Máximo do Domínio Simples: Saque rápido..."></textarea>
+          <textarea style="height:120px;" placeholder="Desbloqueia o Potencial Máximo do Domínio Simples..."></textarea>
           <h3>Visualização da Alma</h3>
           <textarea style="height:180px;" placeholder="1. Reforçar a própria alma...\n2. Ver o contorno da alma..."></textarea>
           <h3>Desbloqueados</h3>
           <div id="maestria-desbloqueados"></div>`;
         desenharMaestria();
       } else if (n === 4) {
-        content.innerHTML = `<h2>Shikigamis (12)</h2><div id="shikigamis-container"></div>`;
+        content.innerHTML = `<h2>Shikigamis (12)</h2>
+          <div id="shikigamis-container"></div>`;
         criarShikigamis();
       }
+    }
+
+    function adicionarItem() {
+      const nome = prompt("Nome do Item:");
+      if (!nome) return;
+      const bagagem = prompt("Peso/Bagagem (ex: 0.5):", "0.5");
+      if (bagagem === null) return;
+
+      itensInventario.push({nome, bagagem});
+      atualizarListaItens();
+    }
+
+    function atualizarListaItens() {
+      const container = document.getElementById('lista-itens');
+      if (!container) return;
+      container.innerHTML = '';
+      itensInventario.forEach((item, index) => {
+        const div = document.createElement('div');
+        div.className = 'item-row';
+        div.innerHTML = `
+          <span>${item.nome} (${item.bagagem})</span>
+          <button onclick="removerItem(${index})">Remover</button>
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    function removerItem(index) {
+      itensInventario.splice(index, 1);
+      atualizarListaItens();
     }
 
     function criarExtensivas() {
