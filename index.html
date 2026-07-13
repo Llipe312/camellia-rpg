@@ -141,17 +141,6 @@
       font-weight: bold;
       width: 100px;
     }
-    .shikigami-box {
-      border: 1px solid #555;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
-    .item-row {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 8px;
-    }
   </style>
 </head>
 <body>
@@ -190,11 +179,11 @@
       </div>
 
       <label>Peculiaridade</label>
-      <select id="peculiaridade">
+      <select id="peculiaridade" onchange="aplicarPeculiaridade()">
         <option value="nenhuma">Nenhuma</option>
         <option value="gemeos">Gêmeos Monozigotos</option>
-        <option value="restricao-inativa">Restrição Celestial Inativa</option>
-        <option value="restricao-completa">Restrição Celestial Completa</option>
+        <option value="restricao-completa">Restrição Celestial Amaldiçoada Completa</option>
+        <option value="restricao-inativa">Restrição Celestial Amaldiçoada Inativa</option>
         <option value="restricao-fisica">Restrição Celestial Física</option>
         <option value="hospedeiro">Hospedeiro</option>
         <option value="hospedeiro-passivo">Hospedeiro Passivo</option>
@@ -231,7 +220,7 @@
 
       <label>Especialização de Técnica</label>
       <select id="especializacao" style="display:none;">
-        <option value="">Selecione (desbloqueia no Semi Grau 1)</option>
+        <option value="">Selecione</option>
         <option value="guerreador">Guerreador</option>
         <option value="talismas">Fabricador de Talismãs</option>
         <option value="pesquisador">Pesquisador de Maldições</option>
@@ -284,7 +273,7 @@
     let statusAtual = { pv:150, pea:140, pe:100 };
     let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
     let pontosMaestria = 1;
-    let grauAtual = "4";
+    let peculiaridadeAtual = "nenhuma";
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -366,6 +355,13 @@
 
     function toggleCustomCla() {
       document.getElementById('custom-cla').style.display = document.getElementById('cla').value === 'custom' ? 'block' : 'none';
+    }
+
+    function aplicarPeculiaridade() {
+      const pec = document.getElementById('peculiaridade').value;
+      peculiaridadeAtual = pec;
+      alert(`Peculiaridade "${pec}" aplicada! (bônus/penalidades automáticos)`);
+      calcularTudo();
     }
 
     function atualizarEvolucao() {
