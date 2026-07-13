@@ -141,12 +141,6 @@
       font-weight: bold;
       width: 100px;
     }
-    .shikigami-box {
-      border: 1px solid #555;
-      border-radius: 12px;
-      padding: 12px;
-      margin-bottom: 12px;
-    }
   </style>
 </head>
 <body>
@@ -218,6 +212,9 @@
         <option value="nao">Não</option>
         <option value="sim">Sim</option>
       </select>
+
+      <label>Velocidade</label>
+      <input type="number" id="velocidade" value="11" readonly>
     </div>
 
     <div class="main">
@@ -271,10 +268,12 @@
       const pvTotal = base.pvBase + (atributos.fisico * base.pvMult);
       const peaTotal = base.peaBase + (atributos.jujutsu * base.peaMult);
       const peTotal = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
+      const velocidade = 10 + atributos.agilidade;
 
       document.getElementById('pv-total').textContent = pvTotal;
       document.getElementById('pea-total').textContent = peaTotal;
       document.getElementById('pe-total').textContent = peTotal;
+      document.getElementById('velocidade').value = velocidade;
 
       if (statusAtual.pv > pvTotal) statusAtual.pv = pvTotal;
       if (statusAtual.pea > peaTotal) statusAtual.pea = peaTotal;
@@ -362,12 +361,15 @@
         content.innerHTML = `<h2>Maestria</h2>
           <p>Pontos de Maestria restantes: <strong id="pm-restantes">1</strong></p>
           <div class="maestria-circle" id="maestria-circle"></div>
+          <h3>Votos Vinculativos</h3>
+          <textarea style="height:120px;" placeholder="Desbloqueia o Potencial Máximo do Domínio Simples: Saque rápido..."></textarea>
+          <h3>Visualização da Alma</h3>
+          <textarea style="height:180px;" placeholder="1. Reforçar a própria alma...\n2. Ver o contorno da alma..."></textarea>
           <h3>Desbloqueados</h3>
           <div id="maestria-desbloqueados"></div>`;
         desenharMaestria();
       } else if (n === 4) {
-        content.innerHTML = `<h2>Shikigamis (12)</h2>
-          <div id="shikigamis-container"></div>`;
+        content.innerHTML = `<h2>Shikigamis (12)</h2><div id="shikigamis-container"></div>`;
         criarShikigamis();
       }
     }
