@@ -204,10 +204,12 @@
       </select>
 
       <label>Grau</label>
-      <select id="grau">
+      <select id="grau" onchange="atualizarEvolucao()">
         <option value="4">Grau 4</option>
         <option value="3">Grau 3</option>
+        <option value="semi2">Semi Grau 2</option>
         <option value="2">Grau 2</option>
+        <option value="semi1">Semi Grau 1</option>
         <option value="1">Grau 1</option>
         <option value="especial">Grau Especial</option>
       </select>
@@ -226,6 +228,23 @@
 
       <label>Velocidade</label>
       <input type="number" id="velocidade" value="11" readonly>
+
+      <label>Especialização de Técnica</label>
+      <select id="especializacao" style="display:none;">
+        <option value="">Selecione (desbloqueia no Semi Grau 1)</option>
+        <option value="guerreador">Guerreador</option>
+        <option value="talismas">Fabricador de Talismãs</option>
+        <option value="pesquisador">Pesquisador de Maldições</option>
+        <option value="domesticador">Domesticador de Maldições</option>
+        <option value="professor">Professor</option>
+        <option value="curandeiro">Curandeiro</option>
+        <option value="mercenario">Mercenário</option>
+        <option value="detetive">Detetive Paranormal</option>
+        <option value="independente">Feiticeiro Independente</option>
+        <option value="barreiras">Engenheiro de Barreiras</option>
+        <option value="forjador">Forjador de Armas</option>
+        <option value="lider">Líder de Culto</option>
+      </select>
     </div>
 
     <div class="main">
@@ -265,7 +284,7 @@
     let statusAtual = { pv:150, pea:140, pe:100 };
     let maestria = { liberacao:1, antidominio:0, barreiras:0, shikigamis:0 };
     let pontosMaestria = 1;
-    let itensInventario = [];
+    let grauAtual = "4";
 
     const especies = {
       humano: { pvBase:12, peaBase:16, peBase:5, pvMult:12, peaMult:12 },
@@ -349,6 +368,19 @@
       document.getElementById('custom-cla').style.display = document.getElementById('cla').value === 'custom' ? 'block' : 'none';
     }
 
+    function atualizarEvolucao() {
+      const grau = document.getElementById('grau').value;
+      const especializacao = document.getElementById('especializacao');
+
+      if (grau === "semi1" || grau === "1" || grau === "especial") {
+        especializacao.style.display = 'block';
+      } else {
+        especializacao.style.display = 'none';
+      }
+
+      calcularTudo();
+    }
+
     function mudarTab(n) {
       const content = document.getElementById('tab-content');
       if (n === 0) {
@@ -358,12 +390,12 @@
           <div id="lista-itens"></div>`;
       } else if (n === 1) {
         content.innerHTML = `<h2>Repertório / Ficha de Personagem</h2>
-          <input type="text" id="nome-personagem" placeholder="Nome" value="Ishida Nishiyama">
+          <input type="text" id="nome-personagem" placeholder="Nome" value="">
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px;">
-            <div>Idade: <input type="number" value="18" style="width:80px;"></div>
-            <div>Altura: <input type="text" value="1,75" style="width:80px;"></div>
-            <div>Peso: <input type="text" value="" placeholder="kg"></div>
-            <div>Gênero: <input type="text" value="Masculino"></div>
+            <div>Idade: <input type="number" value=""></div>
+            <div>Altura: <input type="text" value=""></div>
+            <div>Peso: <input type="text" value=""></div>
+            <div>Gênero: <input type="text" value=""></div>
             <div>Cabelos: <input type="text" value=""></div>
             <div>Olhos: <input type="text" value=""></div>
             <div>Pele: <input type="text" value=""></div>
@@ -371,7 +403,9 @@
           <label>Personalidade</label>
           <textarea style="height:80px;" placeholder="Descreva a personalidade..."></textarea>
           <label>História de Personagem</label>
-          <textarea style="height:120px;" placeholder="História..."></textarea>`;
+          <textarea style="height:120px;" placeholder="História..."></textarea>
+          <label>Repertório</label>
+          <textarea style="height:120px;" placeholder="Repertório..."></textarea>`;
       } else if (n === 2) {
         content.innerHTML = `<h2>Técnica Inata</h2>
           <input type="text" placeholder="Conceito da Técnica Inata">
@@ -402,36 +436,6 @@
           <div id="shikigamis-container"></div>`;
         criarShikigamis();
       }
-    }
-
-    function adicionarItem() {
-      const nome = prompt("Nome do Item:");
-      if (!nome) return;
-      const bagagem = prompt("Peso/Bagagem (ex: 0.5):", "0.5");
-      if (bagagem === null) return;
-
-      itensInventario.push({nome, bagagem});
-      atualizarListaItens();
-    }
-
-    function atualizarListaItens() {
-      const container = document.getElementById('lista-itens');
-      if (!container) return;
-      container.innerHTML = '';
-      itensInventario.forEach((item, index) => {
-        const div = document.createElement('div');
-        div.className = 'item-row';
-        div.innerHTML = `
-          <span>${item.nome} (${item.bagagem})</span>
-          <button onclick="removerItem(${index})">Remover</button>
-        `;
-        container.appendChild(div);
-      });
-    }
-
-    function removerItem(index) {
-      itensInventario.splice(index, 1);
-      atualizarListaItens();
     }
 
     function criarExtensivas() {
@@ -529,6 +533,23 @@
       pontosMaestria -= diff;
       document.getElementById('pm-restantes').textContent = pontosMaestria;
       desenharMaestria();
+    }
+
+    function adicionarItem() {
+      const nome = prompt("Nome do Item:");
+      if (!nome) return;
+      const bagagem = prompt("Peso/Bagagem:", "0.5");
+      if (bagagem === null) return;
+
+      const container = document.getElementById('lista-itens');
+      if (!container) return;
+      const div = document.createElement('div');
+      div.className = 'item-row';
+      div.innerHTML = `
+        <span>${nome} (${bagagem})</span>
+        <button onclick="this.parentElement.remove()">Remover</button>
+      `;
+      container.appendChild(div);
     }
 
     function carregarImagem(e) {
