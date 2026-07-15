@@ -387,15 +387,8 @@
 
     function atualizarEvolucao() {
       const grau = document.getElementById('grau').value;
-      const especializacao = document.getElementById('especializacao');
 
-      if (grau === "semi1" || grau === "1" || grau === "especial") {
-        especializacao.style.display = 'block';
-      } else {
-        especializacao.style.display = 'none';
-      }
-
-      // Sistema de evolução de Grau
+      // Bônus por Grau
       const bonusPM = {
         "3": 2,
         "semi2": 2,
@@ -411,13 +404,18 @@
         "especial": 1
       };
 
-      const novoBonusPM = bonusPM[grau] || 0;
-      const novoBonusPA = bonusPA[grau] || 0;
-
       if (grau !== ultimoGrau) {
-        pontosMaestria += novoBonusPM;
-        pontosRestantes += novoBonusPA;
-        alert(`Evolução para ${grau}!\n+${novoBonusPM} Pontos de Maestria\n+${novoBonusPA} Ponto(s) de Atributo`);
+        const pm = bonusPM[grau] || 0;
+        const pa = bonusPA[grau] || 0;
+
+        pontosMaestria += pm;
+        pontosRestantes += pa;
+
+        let msg = `Evolução para ${grau}!\n`;
+        if (pm > 0) msg += `+${pm} Pontos de Maestria\n`;
+        if (pa > 0) msg += `+${pa} Ponto(s) de Atributo`;
+
+        alert(msg);
       }
 
       ultimoGrau = grau;
