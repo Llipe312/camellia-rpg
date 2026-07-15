@@ -285,10 +285,21 @@
     function calcularTudo() {
       const esp = document.getElementById('especie').value;
       const base = especies[esp];
-      const pvTotal = base.pvBase + (atributos.fisico * base.pvMult);
-      const peaTotal = base.peaBase + (atributos.jujutsu * base.peaMult);
-      const peTotal = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
+      let pvTotal = base.pvBase + (atributos.fisico * base.pvMult);
+      let peaTotal = base.peaBase + (atributos.jujutsu * base.peaMult);
+      let peTotal = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
       const velocidade = 10 + atributos.agilidade;
+
+      // Aplicar efeitos de peculiaridade
+      if (peculiaridadeAtual === "restricao-completa" || peculiaridadeAtual === "restricao-inativa") {
+        peaTotal = 0;
+        atributos.jujutsu = 0;
+      }
+      if (peculiaridadeAtual === "restricao-fisica") {
+        atributos.fisico = 0;
+        atributos.agilidade = 0;
+        pvTotal = 1;
+      }
 
       document.getElementById('pv-total').textContent = pvTotal;
       document.getElementById('pea-total').textContent = peaTotal;
@@ -360,8 +371,8 @@
     function aplicarPeculiaridade() {
       const pec = document.getElementById('peculiaridade').value;
       peculiaridadeAtual = pec;
-      alert(`Peculiaridade "${pec}" aplicada! (bônus/penalidades automáticos)`);
       calcularTudo();
+      alert(`Peculiaridade "${pec}" aplicada!`);
     }
 
     function atualizarEvolucao() {
