@@ -299,6 +299,10 @@
         atributos.fisico = 0;
         atributos.agilidade = 0;
         pvTotal = 1;
+        // Jujutsu e Intelecto não são zerados (conforme sua última instrução)
+      }
+      if (peculiaridadeAtual === "sem-inata") {
+        atributos.jujutsu = Math.min(atributos.jujutsu, 3);
       }
 
       document.getElementById('pv-total').textContent = pvTotal;
@@ -331,12 +335,18 @@
 
     function editarAtributo(attr) {
       const atual = atributos[attr];
-      const novoStr = prompt(`Valor para ${attr} (1 a 4):`, atual);
+      let max = 4;
+
+      const especie = document.getElementById('especie').value;
+      if (especie === "mestico" && (attr === "fisico" || attr === "agilidade")) max = 5;
+      if (especie === "shimuriano" && (attr === "jujutsu" || attr === "intelecto")) max = 5;
+
+      const novoStr = prompt(`Valor para ${attr} (1 a ${max}):`, atual);
       if (novoStr === null) return;
 
       let novo = parseInt(novoStr);
-      if (isNaN(novo) || novo < 1 || novo > 4) {
-        alert("O valor deve estar entre 1 e 4!");
+      if (isNaN(novo) || novo < 1 || novo > max) {
+        alert(`O valor deve estar entre 1 e ${max}!`);
         return;
       }
 
