@@ -147,9 +147,10 @@
       color: var(--rosa);
       text-align: center;
       margin: 20px 0;
-      padding: 15px;
-      background: rgba(139,0,255,0.2);
+      padding: 20px;
+      background: rgba(139,0,255,0.25);
       border-radius: 12px;
+      border: 2px solid var(--roxo);
     }
   </style>
 </head>
@@ -474,15 +475,19 @@
           <div id="shikigamis-container"></div>`;
         criarShikigamis();
       } else if (n === 5) {
-        content.innerHTML = `<h2>Rolagem de Dados (2d10 + Atributo)</h2>
-          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px;">
-            <button onclick="rolarComAtributo('jujutsu')">Jujutsu (2d10 + Jujutsu)</button>
-            <button onclick="rolarComAtributo('fisico')">Físico (2d10 + Físico)</button>
-            <button onclick="rolarComAtributo('agilidade')">Agilidade (2d10 + Agilidade)</button>
-            <button onclick="rolarComAtributo('intelecto')">Intelecto (2d10 + Intelecto)</button>
-            <button onclick="rolarComAtributo('carisma')">Carisma (2d10 + Carisma)</button>
+        content.innerHTML = `<h2>Rolagem de Dados</h2>
+          <div style="margin-bottom:15px;">
+            <input type="text" id="dice-input" placeholder="Ex: 2d10+5 ou 1d20" style="width:60%;">
+            <button onclick="rolarPersonalizado()">Rolar</button>
           </div>
-          <div id="dice-result" class="dice-result">Clique em um atributo para rolar</div>
+          <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(140px,1fr)); gap:12px;">
+            <button onclick="rolarComAtributo('jujutsu')">2d10 + Jujutsu</button>
+            <button onclick="rolarComAtributo('fisico')">2d10 + Físico</button>
+            <button onclick="rolarComAtributo('agilidade')">2d10 + Agilidade</button>
+            <button onclick="rolarComAtributo('intelecto')">2d10 + Intelecto</button>
+            <button onclick="rolarComAtributo('carisma')">2d10 + Carisma</button>
+          </div>
+          <div id="dice-result" class="dice-result">Clique para rolar</div>
           <textarea id="historico-rolagens" style="height:220px; width:100%;" placeholder="Histórico de rolagens..."></textarea>`;
       }
     }
@@ -491,17 +496,54 @@
       const d1 = Math.floor(Math.random() * 10) + 1;
       const d2 = Math.floor(Math.random() * 10) + 1;
       const somaDados = d1 + d2;
-      const bonus = atributos[attr];
+      const bonus = atributos[attr] || 0;
       const total = somaDados + bonus;
 
       const resultDiv = document.getElementById('dice-result');
-      resultDiv.innerHTML = `
-        🎲 2d10 + ${attr.charAt(0).toUpperCase() + attr.slice(1)}<br>
-        ${d1} + ${d2} + ${bonus} = <strong>${total}</strong>
-      `;
+      resultDiv.innerHTML = `🎲 2d10 + ${attr.charAt(0).toUpperCase() + attr.slice(1)}<br>${d1} + ${d2} + ${bonus} = <strong>${total}</strong>`;
 
+      adicionarAoHistorico(`2d10 + ${attr} = ${total} (${d1}+${d2}+${bonus})`);
+    }
+
+    function rolarPersonalizado() {
+      const input = document.getElementById('dice-input').value.trim();
+      if (!input) return alert("Digite algo como: 2d10+5");
+
+      let total = 0;
+      let detalhes = "";
+
+      try {
+        const partes = input.toLowerCase().split('+');
+        const dados = partes[0].match(/(\d+)d(\d+)/);
+
+        if (dados) {
+          const qtd = parseInt(dados[1]);
+          const faces = parseInt(dados[2]);
+          for (let i = 0; i < qtd; i++) {
+            const r = Math.floor(Math.random() * faces) + 1;
+            total += r;
+            detalhes += r + (i < qtd-1 ? "+" : "");
+          }
+        }
+
+        if (partes[1]) {
+          const bonus = parseInt(partes[1]);
+          total += bonus;
+          detalhes += ` + ${bonus}`;
+        }
+
+        const resultDiv = document.getElementById('dice-result');
+        resultDiv.innerHTML = `🎲 ${input}<br>${detalhes} = <strong>${total}</strong>`;
+
+        adicionarAoHistorico(`${input} = ${total}`);
+      } catch (e) {
+        alert("Formato inválido! Use ex: 2d10+5");
+      }
+    }
+
+    function adicionarAoHistorico(texto) {
       const historico = document.getElementById('historico-rolagens');
-      historico.value += `${attr.toUpperCase()}: ${d1}+${d2}+${bonus} = ${total}\n`;
+      historico.value += texto + "\n";
       historico.scrollTop = historico.scrollHeight;
     }
 
