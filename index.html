@@ -141,6 +141,13 @@
       font-weight: bold;
       width: 100px;
     }
+    .dice-result {
+      font-size: 28px;
+      font-weight: bold;
+      color: var(--rosa);
+      text-align: center;
+      margin: 15px 0;
+    }
   </style>
 </head>
 <body>
@@ -255,6 +262,7 @@
         <button onclick="mudarTab(2)" class="tab-btn">Técnica Inata</button>
         <button onclick="mudarTab(3)" class="tab-btn">Maestria</button>
         <button onclick="mudarTab(4)" class="tab-btn">Shikigamis</button>
+        <button onclick="mudarTab(5)" class="tab-btn">Rolagem</button>
       </div>
 
       <div id="tab-content" class="tab-content"></div>
@@ -291,7 +299,6 @@
       let peTotal = base.peBase + atributos.agilidade + (atributos.intelecto*2) + (atributos.carisma*2);
       const velocidade = 10 + atributos.agilidade;
 
-      // Aplicar efeitos de peculiaridade
       if (peculiaridadeAtual === "restricao-completa" || peculiaridadeAtual === "restricao-inativa") {
         peaTotal = 0;
         atributos.jujutsu = 0;
@@ -388,21 +395,8 @@
     function atualizarEvolucao() {
       const grau = document.getElementById('grau').value;
 
-      // Bônus por Grau
-      const bonusPM = {
-        "3": 2,
-        "semi2": 2,
-        "2": 2,
-        "semi1": 2,
-        "1": 3,
-        "especial": 3
-      };
-
-      const bonusPA = {
-        "semi2": 1,
-        "semi1": 1,
-        "especial": 1
-      };
+      const bonusPM = { "3": 2, "semi2": 2, "2": 2, "semi1": 2, "1": 3, "especial": 3 };
+      const bonusPA = { "semi2": 1, "semi1": 1, "especial": 1 };
 
       if (grau !== ultimoGrau) {
         const pm = bonusPM[grau] || 0;
@@ -476,7 +470,29 @@
         content.innerHTML = `<h2>Shikigamis (12)</h2>
           <div id="shikigamis-container"></div>`;
         criarShikigamis();
+      } else if (n === 5) {
+        content.innerHTML = `<h2>Rolagem de Dados</h2>
+          <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <button onclick="rolarDado(20)">D20</button>
+            <button onclick="rolarDado(12)">D12</button>
+            <button onclick="rolarDado(10)">D10</button>
+            <button onclick="rolarDado(8)">D8</button>
+            <button onclick="rolarDado(6)">D6</button>
+            <button onclick="rolarDado(4)">D4</button>
+          </div>
+          <div id="dice-result" class="dice-result">Clique em um dado para rolar</div>
+          <textarea id="historico-rolagens" style="height:200px; width:100%;" placeholder="Histórico de rolagens..."></textarea>`;
       }
+    }
+
+    function rolarDado(faces) {
+      const resultado = Math.floor(Math.random() * faces) + 1;
+      const resultDiv = document.getElementById('dice-result');
+      resultDiv.textContent = `🎲 D${faces} = ${resultado}`;
+
+      const historico = document.getElementById('historico-rolagens');
+      historico.value += `D${faces} → ${resultado}\n`;
+      historico.scrollTop = historico.scrollHeight;
     }
 
     function criarExtensivas() {
